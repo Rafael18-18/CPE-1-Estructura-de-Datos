@@ -1,0 +1,215 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ParqueDiversiones
+{
+    // Clase Persona
+    class Persona
+    {
+        public string Nombre { get; set; }
+        public int Asiento { get; set; }
+
+        public Persona(string nombre)
+        {
+            Nombre = nombre;
+            Asiento = 0;
+        }
+    }
+
+    // Clase que administra la cola y los asientos
+    class SistemaAsientos
+    {
+        private Queue<Persona> cola = new Queue<Persona>();
+        private List<Persona> personasAtendidas = new List<Persona>();
+
+        private int siguienteAsiento = 1;
+        private const int TOTAL_ASIENTOS = 30;
+
+        // Registrar una persona
+        public void RegistrarPersona()
+        {
+            if (personasAtendidas.Count + cola.Count >= TOTAL_ASIENTOS)
+            {
+                Console.WriteLine("\nTodos los asientos han sido reservados.\n");
+                return;
+            }
+
+            Console.Write("Ingrese el nombre de la persona: ");
+            string nombre = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                Console.WriteLine("Nombre inválido.\n");
+                return;
+            }
+
+            cola.Enqueue(new Persona(nombre));
+
+            Console.WriteLine("Persona registrada correctamente.\n");
+        }
+
+        // Asignar asiento
+        public void AsignarAsiento()
+        {
+            if (cola.Count == 0)
+            {
+                Console.WriteLine("\nNo hay personas en espera.\n");
+                return;
+            }
+
+            Persona persona = cola.Dequeue();
+
+            persona.Asiento = siguienteAsiento;
+            siguienteAsiento++;
+
+            personasAtendidas.Add(persona);
+
+            Console.WriteLine($"\nAsiento {persona.Asiento} asignado a {persona.Nombre}\n");
+        }
+
+        // Mostrar cola
+        public void MostrarCola()
+        {
+            Console.WriteLine("\n===== PERSONAS EN ESPERA =====");
+
+            if (cola.Count == 0)
+            {
+                Console.WriteLine("La cola está vacía.");
+            }
+            else
+            {
+                int i = 1;
+
+                foreach (Persona persona in cola)
+                {
+                    Console.WriteLine($"{i}. {persona.Nombre}");
+                    i++;
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        // Mostrar asientos vendidos
+        public void MostrarAsientos()
+        {
+            Console.WriteLine("\n===== ASIENTOS ASIGNADOS =====");
+
+            if (personasAtendidas.Count == 0)
+            {
+                Console.WriteLine("No existen asientos asignados.");
+            }
+            else
+            {
+                foreach (Persona persona in personasAtendidas)
+                {
+                    Console.WriteLine($"Asiento {persona.Asiento} -> {persona.Nombre}");
+                }
+            }
+
+            Console.WriteLine();
+        }
+
+        // Buscar persona
+        public void BuscarPersona()
+        {
+            Console.Write("\nIngrese el nombre: ");
+
+            string nombre = Console.ReadLine();
+
+            Persona persona = personasAtendidas.FirstOrDefault(
+                p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+
+            if (persona == null)
+            {
+                Console.WriteLine("La persona no tiene asiento asignado.\n");
+            }
+            else
+            {
+                Console.WriteLine($"La persona {persona.Nombre} ocupa el asiento {persona.Asiento}.\n");
+            }
+        }
+
+        // Estadísticas
+        public void MostrarEstado()
+        {
+            Console.WriteLine("\n===== ESTADO DEL SISTEMA =====");
+
+            Console.WriteLine($"Personas en espera : {cola.Count}");
+            Console.WriteLine($"Asientos ocupados  : {personasAtendidas.Count}");
+            Console.WriteLine($"Asientos libres    : {TOTAL_ASIENTOS - personasAtendidas.Count - cola.Count}");
+
+            Console.WriteLine();
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SistemaAsientos sistema = new SistemaAsientos();
+
+            int opcion;
+
+            do
+            {
+                Console.WriteLine("========================================");
+                Console.WriteLine(" PARQUE DE DIVERSIONES");
+                Console.WriteLine(" Asignación de 30 asientos");
+                Console.WriteLine("========================================");
+                Console.WriteLine("1. Registrar persona");
+                Console.WriteLine("2. Asignar siguiente asiento");
+                Console.WriteLine("3. Mostrar cola");
+                Console.WriteLine("4. Mostrar asientos asignados");
+                Console.WriteLine("5. Buscar persona");
+                Console.WriteLine("6. Estado del sistema");
+                Console.WriteLine("0. Salir");
+                Console.Write("Seleccione una opción: ");
+
+                if (!int.TryParse(Console.ReadLine(), out opcion))
+                {
+                    opcion = -1;
+                }
+
+                Console.WriteLine();
+
+                switch (opcion)
+                {
+                    case 1:
+                        sistema.RegistrarPersona();
+                        break;
+
+                    case 2:
+                        sistema.AsignarAsiento();
+                        break;
+
+                    case 3:
+                        sistema.MostrarCola();
+                        break;
+
+                    case 4:
+                        sistema.MostrarAsientos();
+                        break;
+
+                    case 5:
+                        sistema.BuscarPersona();
+                        break;
+
+                    case 6:
+                        sistema.MostrarEstado();
+                        break;
+
+                    case 0:
+                        Console.WriteLine("Programa finalizado.");
+                        break;
+
+                    default:
+                        Console.WriteLine("Opción incorrecta.\n");
+                        break;
+                }
+
+            } while (opcion != 0);
+        }
+    }
+}
